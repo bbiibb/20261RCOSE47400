@@ -47,7 +47,7 @@ class Spectrogram(nn.Module):
         self.channels = channels
         self.top_db = top_db
         self.spec_aug = spec_aug or {}
-        self.spec_aug_enabled = self.spec_aug.get("enable", False)
+        self.spec_aug_enabled = False
 
         self.mel_transform = torchaudio.transforms.MelSpectrogram(
             sample_rate=sr,
@@ -357,11 +357,9 @@ class Trainer:
             x = x.to(self.device)
             y = y.to(self.device)
 
-            
-            
             x, y = mix(x, y)
             x = self.mel(x)
-            
+
             logits = self.model(x)
 
             L = self.loss_fn(logits, y)
@@ -426,8 +424,6 @@ class Trainer:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = self.model.to(self.device)
 
-        best = (np.inf, None, -1)
-
         Epochs = range(epochs)
         for epoch in Epochs:
             torch.manual_seed(self.config["seed"] + epoch)
@@ -436,9 +432,6 @@ class Trainer:
 
             if not self.config["train_only"]:
                 val_scores, val_loss = self.validate()
-
-                if val_loss < best[0]:
-                    best = (val_loss, val_scores, epoch)
 
             else:
                 val_scores, val_loss = [None] * len(self.config["metrics"]), None
@@ -456,12 +449,6 @@ class Trainer:
 
             self.history.to_csv(os.path.join(HISTORY_DIR, f"{self.exp_id}.csv"), index=False)
 
-            if checkpoint_freq == "epoch":
-                torch.save(
-                    self.model.state_dict(),
-                    os.path.join(MODELS_DIR, f"{self.exp_id}_{epoch}.pth")
-                )
-
             clear_output(wait=False)
             print(self.exp_id, "\n")
             print(f"\033[1m Epoch {epoch + 1}/{epochs}")
@@ -476,22 +463,12 @@ class Trainer:
                     ])
                     + "\033[0m"
                 )
-                print()
-                print(
-                    "\033[1m Best : "
-                    + "  -  ".join([
-                        f"{m.__name__}={np.round(s, 3)}"
-                        for m, s in zip(self.config["metrics"], best[1])
-                    ])
-                    + f" at epoch {best[2]}"
-                )
 
 
             if self.config["scheduler"]:
                 self.scheduler.step()
 
-        if checkpoint_freq == "once":
-            torch.save(self.model.state_dict(), os.path.join(MODELS_DIR, f"{self.exp_id}.pth"))
+        torch.save(self.model.state_dict(), os.path.join(MODELS_DIR, f"{self.exp_id}.pth"))
 
         return self.model
 
