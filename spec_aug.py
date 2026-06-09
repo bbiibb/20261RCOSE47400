@@ -425,8 +425,6 @@ class Trainer:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = self.model.to(self.device)
 
-        best = (np.inf, None, -1)
-
         Epochs = range(epochs)
         for epoch in Epochs:
             torch.manual_seed(self.config["seed"] + epoch)
@@ -435,9 +433,6 @@ class Trainer:
 
             if not self.config["train_only"]:
                 val_scores, val_loss = self.validate()
-
-                if val_loss < best[0]:
-                    best = (val_loss, val_scores, epoch)
 
             else:
                 val_scores, val_loss = [None] * len(self.config["metrics"]), None
@@ -455,12 +450,6 @@ class Trainer:
 
             self.history.to_csv(os.path.join(HISTORY_DIR, f"{self.exp_id}.csv"), index=False)
 
-            if checkpoint_freq == "epoch":
-                torch.save(
-                    self.model.state_dict(),
-                    os.path.join(MODELS_DIR, f"{self.exp_id}_{epoch}.pth")
-                )
-
             clear_output(wait=False)
             print(self.exp_id, "\n")
             print(f"\033[1m Epoch {epoch + 1}/{epochs}")
@@ -475,22 +464,12 @@ class Trainer:
                     ])
                     + "\033[0m"
                 )
-                print()
-                print(
-                    "\033[1m Best : "
-                    + "  -  ".join([
-                        f"{m.__name__}={np.round(s, 3)}"
-                        for m, s in zip(self.config["metrics"], best[1])
-                    ])
-                    + f" at epoch {best[2]}"
-                )
 
 
             if self.config["scheduler"]:
                 self.scheduler.step()
 
-        if checkpoint_freq == "once":
-            torch.save(self.model.state_dict(), os.path.join(MODELS_DIR, f"{self.exp_id}.pth"))
+        torch.save(self.model.state_dict(), os.path.join(MODELS_DIR, f"{self.exp_id}.pth"))
 
         return self.model
 
@@ -505,7 +484,7 @@ if __name__ == "__main__":
         "backbone": "tf_efficientnetv2_b0",
         "loss": nn.BCEWithLogitsLoss(),
         "mel": {"n_mels": 256, "f_min": 20, "n_fft": 2048, "target_size": (256, 256)},
-        "spec_aug": {"p": 0.3, "freq_mask_param": 12, "time_mask_param": 24, "num_masks": 1}, 
+        "spec_aug": {"enable": True, "p": 0.3, "freq_mask_param": 12, "time_mask_param": 24, "num_masks": 1}, 
         "mix": {"alpha": 0.5, "theta": 0.8},
         "pretrained": True,
         "model": BirdModel,
@@ -514,4 +493,4 @@ if __name__ == "__main__":
     }
 
     trainer = Trainer(config=config, fold=0)
-    model = trainer.train(epochs=20)
+    model = trainer.train(epochs=32)
