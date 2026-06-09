@@ -47,7 +47,7 @@ class Spectrogram(nn.Module):
         self.channels = channels
         self.top_db = top_db
         self.spec_aug = spec_aug or {}
-        self.spec_aug_enabled = self.spec_aug.get("enable", False)
+        self.spec_aug_enabled = True
 
         self.mel_transform = torchaudio.transforms.MelSpectrogram(
             sample_rate=sr,
@@ -360,7 +360,7 @@ class Trainer:
             
             x = self.mel(x)
             x, y = mix(x, y)
-            
+
             logits = self.model(x)
 
             L = self.loss_fn(logits, y)
@@ -505,7 +505,7 @@ if __name__ == "__main__":
         "backbone": "tf_efficientnetv2_b0",
         "loss": nn.BCEWithLogitsLoss(),
         "mel": {"n_mels": 256, "f_min": 20, "n_fft": 2048, "target_size": (256, 256)},
-        "spec_aug": {"enable": True, "p": 0.3, "freq_mask_param": 12, "time_mask_param": 24, "num_masks": 1}, 
+        "spec_aug": {"p": 0.3, "freq_mask_param": 12, "time_mask_param": 24, "num_masks": 1}, 
         "mix": {"alpha": 0.5, "theta": 0.8},
         "pretrained": True,
         "model": BirdModel,
@@ -514,4 +514,4 @@ if __name__ == "__main__":
     }
 
     trainer = Trainer(config=config, fold=0)
-    model = trainer.train(epochs=32)
+    model = trainer.train(epochs=20)
