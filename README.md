@@ -4,9 +4,9 @@
 
 | Student | ID | Role |
 |---|---|---|
-| Siun Lim | 2023250028 | Class Imbalance & Rare Species Learning |
-| Younseo Choi | 2024320378 | Domain Shift Adaptation |
-| Saanvi Upadhyay | 2024120091 | Spectrogram Regularization & Zero-shot |
+| Siun Lim | 2023250028 | Domain Shift Adaptation|
+| Younseo Choi | 2024320378 |  Spectrogram Regularization & Zero-shot |
+| Saanvi Upadhyay | 2024120091 | Class Imbalance  |
 
 > **Baseline LB 0.749 → Final Ensemble LB 0.858 (+14.5%)**
 
@@ -41,8 +41,8 @@ Classify 234 bird species from 60-second Pantanal soundscapes under **CPU-only i
 │   ├── exp02_weighted_loss_training.ipynb   # Exp C2: Weighted BCE (pos_weight)
 │   ├── exp03_sampler_training.ipynb         # Exp C3: WeightedRandomSampler
 │   ├── exp04_combined.ipynb                 # Exp C4: Weighted BCE + Sampler combined
-│   ├── exp05_focal_loss_soundscape.ipynb    # Exp C5: Focal Loss + Soundscape + Multi-label
-│   ├── exp05_training_log.csv               # Epoch-by-epoch training metrics for Exp C5
+│   ├── exp05_focal_loss_soundscape.ipynb    
+│   ├── exp05_training_log.csv               
 │   └── README.md
 │
 └── spectrogram_aug&zero_shot/           # Spectrogram Regularization (Saanvi Upadhyay)
