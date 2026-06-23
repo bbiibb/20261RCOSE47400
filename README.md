@@ -193,17 +193,7 @@ $$\hat{y} = \frac{\sum_k w_k \cdot \sigma(f_k(x))}{\sum_k w_k}$$
 
 The two-model ensemble (Domain Shift + Spectrogram Augmentation) outperforms the three-model version that adds Focal Loss, confirming that **complementary objectives yield greater synergy than simply adding more models**.
 
----
 
-## Key Takeaways
-
-1. **Failure analysis reveals stronger directions**: Soundscape noise injection (Exp2) degraded performance, but diagnosing *why* (unlabeled co-occurring vocalizations → contradictory labels) directly led to treating soundscapes as labeled data (Exp3), the largest single gain (+8.1%).
-
-2. **Val AUC is not a reliable proxy**: Multi-label integration reduced Val AUC (0.988 → 0.962) yet improved LB. The validation set consists of clean Xeno-canto recordings that do not reflect test conditions.
-
-3. **Waveform-level Mixup > spectrogram-level Mixup**: Mixing raw audio before feature extraction (B1 Private 0.794) consistently outperforms mixing post-conversion (B2 Private 0.784).
-
-4. **Complementary ensembles beat additive ones**: Two models trained on different challenges outperform three models trained on overlapping objectives.
 
 ---
 
